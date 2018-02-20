@@ -10,56 +10,54 @@ import UIKit
 
 class BusinessesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate{
     
+    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
     
     var businesses: [Business]!
-    var searchWord: String = "Restaurant"
+    var searchWord: String = "Thai"
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let searchBar = UISearchBar()
-//        searchBar.delegate = self
         searchBar.sizeToFit()
-
         navigationItem.titleView = searchBar
-        
-        
-        
+        searchBar.delegate = self
         
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
         
-        Business.searchWithTerm(term: self.searchWord , completion: { (businesses: [Business]?, error: Error?) -> Void in
-    
-            self.businesses = businesses
-            self.tableView.reloadData()
-            if let businesses = businesses {
-                for business in businesses {
-                    print(business.name!)
-                    print(business.address!)
-                }
-            }
-            
-            }
-        )
-        
-        /* Example of Yelp search with more search options specified
-         Business.searchWithTerm("Restaurants", sort: .distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: Error!) -> Void in
-         self.businesses = businesses
-         
-         for business in businesses {
-         print(business.name!)
-         print(business.address!)
-         }
-         }
-         */
+        getYelpSearchResult()
         
     }
     
-
+    func getYelpSearchResult(){
+        Business.searchWithTerm(term: self.searchWord , completion: { (businesses: [Business]?, error: Error?) -> Void in
+            self.businesses = businesses
+            self.tableView.reloadData()
+            if let businesses = businesses {
+                print("business: ", businesses[0])
+                for business in businesses {
+//                    print(business.name!)
+//                    print(business.address!)
+                }
+            }
+            self.tableView.scrollToRow(at: IndexPath.init(row:0 , section:0 ), at: .top, animated: false)
+        })
+        
+    }
+    
+    
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+////        print("searchText:", searchText)
+//    }
+//
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        self.searchWord = searchBar.text!
+        print("self.searchWord", self.searchWord)
+        getYelpSearchResult()
+        self.searchBar.placeholder = "Search for a business"
+    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -80,6 +78,15 @@ class BusinessesViewController: UIViewController, UITableViewDelegate, UITableVi
         return cell
     }
     
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        let cell = sender as! UITableViewCell
+//        if let indexPath = tableView.indexPath(for: cell){
+//            let business = businesses[indexPath.row]
+//            let detailViewController = segue.destination as! DetailViewController
+//            detailViewController.business = (business as? [String: Any])!
+//            
+//        }
+//    }
     /*
      // MARK: - Navigation
      
@@ -90,4 +97,14 @@ class BusinessesViewController: UIViewController, UITableViewDelegate, UITableVi
      }
      */
     
+    /* Example of Yelp search with more search options specified
+     Business.searchWithTerm("Restaurants", sort: .distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: Error!) -> Void in
+     self.businesses = businesses
+     
+     for business in businesses {
+     print(business.name!)
+     print(business.address!)
+     }
+     }
+     */
 }
